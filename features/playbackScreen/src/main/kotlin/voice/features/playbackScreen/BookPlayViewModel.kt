@@ -122,9 +122,9 @@ class BookPlayViewModel(
     val subtitles = _subtitles.value
     if (subtitles.isEmpty()) return
     
-    val positionMs = currentPosition.inWholeMilliseconds
+    val positionMs = currentPosition.inWholeMillisecondsval 
     val newActiveIndex = subtitles.indexOfFirst { subtitle ->
-      positionMs >= subtitle.startTime && positionMs <= subtitle.endTime
+      positionMs >= subtitle.startTime.toLong() && positionMs <= subtitle.endTime.toLong()
     }
     
     if (newActiveIndex != _activeSubtitleIndex.value) {
