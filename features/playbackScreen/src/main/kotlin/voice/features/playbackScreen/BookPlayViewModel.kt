@@ -110,7 +110,7 @@ class BookPlayViewModel(
           }
         }
       } catch (e: Exception) {
-        Logger.e("Failed to load subtitles for $bookName", e)
+        Logger.e(e, "Failed to load subtitles for $bookName")
       }
     }
   }
