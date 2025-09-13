@@ -10,6 +10,8 @@ import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.BedtimeOff
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material.icons.outlined.Subtitles
+import androidx.compose.material.icons.outlined.SubtitlesOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -33,6 +35,7 @@ internal fun BookPlayAppBar(
   onSpeedChangeClick: () -> Unit,
   onSkipSilenceClick: () -> Unit,
   onVolumeBoostClick: () -> Unit,
+  onSubtitlesClick: () -> Unit,
   onCloseClick: () -> Unit,
   useLandscapeLayout: Boolean,
 ) {
@@ -67,6 +70,16 @@ internal fun BookPlayAppBar(
       Icon(
         imageVector = Icons.Outlined.Speed,
         contentDescription = stringResource(id = R.string.playback_speed),
+      )
+    }
+    IconButton(onClick = onSubtitlesClick) {
+      Icon(
+        imageVector = if (viewState.showSubtitles) {
+          Icons.Outlined.Subtitles
+        } else {
+          Icons.Outlined.SubtitlesOff
+        },
+        contentDescription = "Toggle Subtitles",
       )
     }
     OverflowMenu(

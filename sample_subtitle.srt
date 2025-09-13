@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:05,000
+Welcome to the audiobook player with synchronized subtitles.
+
+2
+00:00:05,100 --> 00:00:10,000
+This is a sample subtitle file to demonstrate the functionality.
+
+3
+00:00:10,100 --> 00:00:15,000
+The subtitles will highlight as the audio plays.
+
+4
+00:00:15,100 --> 00:00:20,000
+You can toggle subtitles on and off using the button in the app bar.
+
+5
+00:00:20,100 --> 00:00:25,000
+The current line will be highlighted to make it easier to follow along.
+
+6
+00:00:25,100 --> 00:00:30,000
+Enjoy your audiobook with synchronized subtitles!

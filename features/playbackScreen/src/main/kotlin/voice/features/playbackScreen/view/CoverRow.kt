@@ -21,10 +21,22 @@ internal fun CoverRow(
   cover: ImmutableFile?,
   sleepTimerState: BookPlayViewState.SleepTimerViewState,
   onPlayClick: () -> Unit,
+  subtitles: List<SubtitleLine> = emptyList(),
+  activeSubtitleIndex: Int = -1,
+  showSubtitles: Boolean = false,
   modifier: Modifier = Modifier,
 ) {
   Box(modifier) {
-    Cover(onDoubleClick = onPlayClick, cover = cover)
+    if (showSubtitles && subtitles.isNotEmpty()) {
+      SubtitleView(
+        subtitles = subtitles,
+        activeSubtitleIndex = activeSubtitleIndex,
+        onDoubleClick = onPlayClick
+      )
+    } else {
+      Cover(onDoubleClick = onPlayClick, cover = cover)
+    }
+    
     when (sleepTimerState) {
       BookPlayViewState.SleepTimerViewState.Disabled -> {
       }

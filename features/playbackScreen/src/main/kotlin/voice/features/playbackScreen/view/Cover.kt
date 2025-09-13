@@ -13,6 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import voice.core.ui.ImmutableFile
+import voice.features.playbackScreen.subtitle.SubtitleLine
+import voice.features.playbackScreen.subtitle.SubtitleView
 import voice.core.strings.R as StringsR
 import voice.core.ui.R as UiR
 
@@ -20,22 +22,34 @@ import voice.core.ui.R as UiR
 internal fun Cover(
   onDoubleClick: () -> Unit,
   cover: ImmutableFile?,
+  subtitles: List<SubtitleLine> = emptyList(),
+  showSubtitles: Boolean = false,
 ) {
-  AsyncImage(
-    modifier = Modifier
-      .fillMaxSize()
-      .pointerInput(Unit) {
-        detectTapGestures(
-          onDoubleTap = {
-            onDoubleClick()
-          },
-        )
-      }
-      .clip(RoundedCornerShape(20.dp)),
-    contentScale = ContentScale.Crop,
-    model = cover?.file,
-    placeholder = painterResource(id = UiR.drawable.album_art),
-    error = painterResource(id = UiR.drawable.album_art),
-    contentDescription = stringResource(id = StringsR.string.cover),
-  )
+  val modifier = Modifier
+    .fillMaxSize()
+    .pointerInput(Unit) {
+      detectTapGestures(
+        onDoubleTap = {
+          onDoubleClick()
+        },
+      )
+    }
+    .clip(RoundedCornerShape(20.dp))
+    
+  if (showSubtitles && subtitles.isNotEmpty()) {
+    SubtitleView(
+      subtitles = subtitles,
+      onDoubleClick = onDoubleClick,
+      modifier = modifier
+    )
+  } else {
+    AsyncImage(
+      modifier = modifier,
+      contentScale = ContentScale.Crop,
+      model = cover?.file,
+      placeholder = painterResource(id = UiR.drawable.album_art),
+      error = painterResource(id = UiR.drawable.album_art),
+      contentDescription = stringResource(id = StringsR.string.cover),
+    )
+  }
 }

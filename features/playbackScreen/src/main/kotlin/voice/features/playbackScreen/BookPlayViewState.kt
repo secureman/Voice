@@ -3,6 +3,7 @@ package voice.features.playbackScreen
 import androidx.compose.runtime.Immutable
 import voice.core.playback.misc.Decibel
 import voice.core.ui.ImmutableFile
+import voice.features.playbackScreen.subtitle.SubtitleLine
 import voice.features.sleepTimer.SleepTimerViewState
 import kotlin.time.Duration
 
@@ -17,6 +18,9 @@ data class BookPlayViewState(
   val playing: Boolean,
   val cover: ImmutableFile?,
   val skipSilence: Boolean,
+  val subtitles: List<SubtitleLine> = emptyList(),
+  val activeSubtitleIndex: Int = -1,
+  val showSubtitles: Boolean = false,
 ) {
 
   sealed interface SleepTimerViewState {

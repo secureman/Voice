@@ -18,6 +18,7 @@ import voice.core.common.rootGraphAs
 import voice.core.data.BookId
 import voice.core.ui.rememberScoped
 import voice.features.playbackScreen.view.BookPlayView
+import voice.features.playbackScreen.view.SubtitleToggleButton
 import voice.features.sleepTimer.SleepTimerDialog
 import voice.navigation.Destination
 import voice.navigation.NavEntryProvider
@@ -71,6 +72,7 @@ fun BookPlayScreen(bookId: BookId) {
     onSkipToNext = viewModel::next,
     onSkipToPrevious = viewModel::previous,
     onCurrentChapterClick = viewModel::onCurrentChapterClick,
+    onToggleSubtitles = viewModel::toggleSubtitles,
     useLandscapeLayout = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE,
     snackbarHostState = snackbarHostState,
   )

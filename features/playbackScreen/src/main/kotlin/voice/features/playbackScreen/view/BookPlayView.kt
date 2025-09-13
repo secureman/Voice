@@ -31,6 +31,7 @@ internal fun BookPlayView(
   onSkipToPrevious: () -> Unit,
   onCloseClick: () -> Unit,
   onCurrentChapterClick: () -> Unit,
+  onToggleSubtitles: () -> Unit,
   snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
   Scaffold(
@@ -46,6 +47,7 @@ internal fun BookPlayView(
         onSpeedChangeClick = onSpeedChangeClick,
         onSkipSilenceClick = onSkipSilenceClick,
         onVolumeBoostClick = onVolumeBoostClick,
+        onSubtitlesClick = onToggleSubtitles,
         onCloseClick = onCloseClick,
         useLandscapeLayout = useLandscapeLayout,
       )
@@ -90,6 +92,7 @@ private fun BookPlayPreview(
       onSkipToPrevious = {},
       onCloseClick = {},
       onCurrentChapterClick = {},
+      onToggleSubtitles = {},
       useLandscapeLayout = false,
     )
   }

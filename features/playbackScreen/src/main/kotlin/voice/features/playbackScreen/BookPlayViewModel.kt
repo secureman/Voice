@@ -37,12 +37,18 @@ import voice.core.sleeptimer.SleepTimerMode.TimedWithDuration
 import voice.core.sleeptimer.SleepTimerState
 import voice.core.ui.ImmutableFile
 import voice.features.playbackScreen.batteryOptimization.BatteryOptimization
+import voice.features.playbackScreen.subtitle.SubtitleLine
+import voice.features.playbackScreen.subtitle.parseSrtFile
 import voice.features.sleepTimer.SleepTimerViewState
 import voice.navigation.Destination
 import voice.navigation.Navigator
+import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 @Inject
 class BookPlayViewModel(
@@ -70,6 +76,86 @@ class BookPlayViewModel(
 
   private val _dialogState = mutableStateOf<BookPlayDialogViewState?>(null)
   internal val dialogState: State<BookPlayDialogViewState?> get() = _dialogState
+  
+  // Subtitle state
+  private val _subtitles = mutableStateOf<List<SubtitleLine>>(emptyList())
+  private val _activeSubtitleIndex = mutableStateOf(-1)
+  private val _showSubtitles = mutableStateOf(false)
+  
+  init {
+    // Start subtitle synchronization
+    startSubtitleSynchronization()
+  }
+  
+  /**
+   * Attempts to load subtitles for the given book name by looking for an SRT file with the same name
+   */
+  private fun tryLoadSubtitles(bookName: String) {
+    scope.launch {
+      try {
+        // Look for SRT file with the same name as the book in common directories
+        val possibleLocations = listOf(
+          File("${bookName}.srt"),
+          File("subtitles/${bookName}.srt")
+        )
+        
+        for (location in possibleLocations) {
+          if (location.exists()) {
+            val subtitles = parseSrtFile(location)
+            if (subtitles.isNotEmpty()) {
+              _subtitles.value = subtitles
+              _showSubtitles.value = true
+              break
+            }
+          }
+        }
+      } catch (e: Exception) {
+        Logger.e("Failed to load subtitles for $bookName", e)
+      }
+    }
+  }
+  
+  /**
+   * Updates the active subtitle index based on the current playback position
+   */
+  private fun updateActiveSubtitle(currentPosition: Duration) {
+    val subtitles = _subtitles.value
+    if (subtitles.isEmpty()) return
+    
+    val positionMs = currentPosition.inWholeMilliseconds
+    val newActiveIndex = subtitles.indexOfFirst { subtitle ->
+      positionMs >= subtitle.startTime && positionMs <= subtitle.endTime
+    }
+    
+    if (newActiveIndex != _activeSubtitleIndex.value) {
+      _activeSubtitleIndex.value = newActiveIndex
+    }
+  }
+  
+  /**
+   * Toggles subtitle visibility
+   */
+  fun toggleSubtitles() {
+    _showSubtitles.value = !_showSubtitles.value
+  }
+  
+  /**
+   * Starts a coroutine that periodically updates the active subtitle
+   */
+  private fun startSubtitleSynchronization() {
+    scope.launch {
+      while (isActive) {
+        // Update active subtitle every 200ms
+        delay(200)
+        val book = bookRepository.bookById(bookId)
+        if (book != null && _subtitles.value.isNotEmpty()) {
+          val currentMark = book.currentChapter.markForPosition(book.content.positionInChapter)
+          val currentPosition = (book.content.positionInChapter - currentMark.startMs).milliseconds
+          updateActiveSubtitle(currentPosition)
+        }
+      }
+    }
+  }
 
   @Composable
   fun viewState(): BookPlayViewState? {
@@ -89,6 +175,15 @@ class BookPlayViewModel(
 
     val currentMark = book.currentChapter.markForPosition(book.content.positionInChapter)
     val hasMoreThanOneChapter = book.chapters.sumOf { it.chapterMarks.count() } > 1
+    
+    // Try to load subtitles if they're not already loaded
+    if (_subtitles.value.isEmpty()) {
+      tryLoadSubtitles(book.content.name)
+    }
+    
+    // Update active subtitle based on current playback position
+    updateActiveSubtitle((book.content.positionInChapter - currentMark.startMs).milliseconds)
+    
     return BookPlayViewState(
       sleepTimerState = sleepTime.toViewState(),
       playing = playState == PlayStateManager.PlayState.Playing,
@@ -98,6 +193,9 @@ class BookPlayViewModel(
       duration = currentMark.durationMs.milliseconds,
       playedTime = (book.content.positionInChapter - currentMark.startMs).milliseconds,
       cover = book.content.cover?.let(::ImmutableFile),
+      subtitles = _subtitles.value,
+      activeSubtitleIndex = _activeSubtitleIndex.value,
+      showSubtitles = _showSubtitles.value,
       skipSilence = book.content.skipSilence,
     )
   }
